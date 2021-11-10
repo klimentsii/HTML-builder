@@ -1,23 +1,23 @@
-const fs = require('fs')
-var path = require('path')
+const fs = require('fs');
+const path = require('path');
 
-fs.readdir('05-merge-styles/project-dist/', function(err) {
-    if (err) throw err;
-    fs.unlink(require('path').join('05-merge-styles/project-dist/', 'bundle.css'), err => {
-        if (err) throw err;
-    });
-});
+const checkStyles = () => {
+  fs.readdir(path.join(__dirname, 'styles'), (err, files) => {
+    if (err) throw new Error('Error with reading styles');
+    const cssFiles = files.filter(file => path.extname(file) === '.css');
+    readWrite(cssFiles);
+  });
+};
 
-fs.readdir("05-merge-styles/styles", function(err, files) {
-    if (err) throw err;
-    files.forEach(file => {
-        if(path.extname(file) == '.css') {
-            fs.readFile(`05-merge-styles/styles/${file}`, "utf8", function(error,data) {
-                if(error) throw error;
-                fs.appendFile(`05-merge-styles/project-dist/bundle.css`, data, function(error) {
-                    if(error) throw error;
-                }); 
-            });
-        }
-    })
-})
+const readWrite = cssFiles => {
+  const writeStream = fs.createWriteStream(path.join(path.join(__dirname, 'project-dist'), 'bundle.css'));
+  cssFiles.forEach(file => {
+    const readStream = fs.createReadStream(path.join(path.join(__dirname, 'styles'), file));
+    readStream.pipe(writeStream);
+  });
+};
+
+const bundle = async () => {
+  await checkStyles();
+};
+bundle();
