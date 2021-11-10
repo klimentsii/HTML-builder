@@ -1,6 +1,6 @@
-const fs = require("fs");
- 
-fs.readFile("01-read-file/text.txt", "utf8", function(error,data) {
-    if(error) throw error;
-    console.log(data);     
-});
+const fs = require('fs');
+const { stdout } = require('process');
+const stream = fs.createReadStream( require('path').join(__dirname, '/text.txt'), 'utf8' );
+
+stream.on('data', (data) => stdout.write(data));
+stream.on('error', (err) => stdout.write(`Err: ${err}`));
